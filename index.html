@@ -1,4 +1,4 @@
-<title>옥텟 규칙 탐구실</title>
+<title>이온 탐구실</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap">
 <style>
   :root {
@@ -14,6 +14,7 @@
     --stable-bg: #dff2e8;
     --unstable: #c14b39;
     --unstable-bg: #fbe3de;
+    --anion: #2f6fae;
     --shadow: 0 18px 40px -20px rgba(22, 39, 62, 0.35);
     color-scheme: light;
   }
@@ -32,6 +33,7 @@
       --stable-bg: #123527;
       --unstable: #ef8571;
       --unstable-bg: #3a2019;
+      --anion: #7db4ea;
       --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
       color-scheme: dark;
     }
@@ -50,6 +52,7 @@
     --stable-bg: #123527;
     --unstable: #ef8571;
     --unstable-bg: #3a2019;
+    --anion: #7db4ea;
     --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
     color-scheme: dark;
   }
@@ -69,6 +72,7 @@
   }
 
   .wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  #panelElectrons:not([hidden]), #panelBonding:not([hidden]) { display: flex; flex-direction: column; gap: 22px; }
 
   /* header */
   header { display: flex; flex-direction: column; gap: 6px; }
@@ -102,6 +106,20 @@
     margin-top: 2px;
   }
   .howto b { color: var(--ink); font-weight: 700; }
+
+  /* tabs */
+  .tabbar {
+    display: flex; gap: 4px; padding: 4px;
+    background: var(--paper); border: 1px solid var(--grid-line); border-radius: 12px;
+    width: fit-content; margin-top: 4px;
+  }
+  .tabbtn {
+    padding: 10px 18px; border-radius: 9px; border: none; background: transparent;
+    color: var(--ink-soft); font-family: 'Gothic A1', sans-serif; font-weight: 700;
+    font-size: 0.9rem; cursor: pointer; transition: background .12s ease, color .12s ease;
+  }
+  .tabbtn[aria-selected="true"] { background: var(--accent); color: var(--paper-raised); }
+  .tabpanel-intro { color: var(--ink-soft); font-size: 0.9rem; margin: 2px 0 0; }
 
   /* panel base */
   .panel {
@@ -167,6 +185,13 @@
     color: var(--paper-raised);
   }
   .elbtn[aria-pressed="true"] .z { color: var(--paper-raised); opacity: .85; }
+  .elbtn.metal { border-color: var(--anion); }
+  .elbtn.metal::after {
+    content: '★'; position: absolute; top: 1px; right: 3px;
+    font-size: 0.5rem; color: var(--anion);
+  }
+  .elbtn.metal[aria-pressed="true"] { background: var(--anion); border-color: var(--anion); }
+  .elbtn.metal[aria-pressed="true"]::after { color: var(--paper-raised); }
   .ptable-note {
     margin-top: 12px; font-size: 0.78rem; color: var(--ink-faint);
   }
@@ -263,6 +288,72 @@
     .rule-grid { grid-template-columns: 1fr; }
   }
 
+  /* bonding tab */
+  .compound-grid, .compound-checklist {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
+  }
+  .compoundbtn {
+    border: 1.5px solid var(--grid-line); border-radius: 10px; padding: 12px 14px;
+    background: transparent; color: var(--ink); text-align: left; cursor: pointer;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .compoundbtn .name { font-weight: 700; font-size: 0.88rem; display: block; }
+  .compoundbtn .formula-hint { font-family: 'Space Mono', monospace; font-size: 0.74rem; color: var(--ink-faint); }
+  .compoundbtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper-raised); }
+  .compoundbtn[aria-pressed="true"] .formula-hint { color: var(--paper-raised); opacity: .85; }
+
+  .ionsources { display: flex; align-items: center; justify-content: center; gap: 22px; flex-wrap: wrap; margin: 6px 0 16px; }
+  .ionsource { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .iontile {
+    border: 2px solid var(--grid-line); border-radius: 14px; padding: 16px 24px;
+    background: var(--paper-raised); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transition: border-color .12s ease, transform .12s ease;
+  }
+  .iontile:hover { transform: translateY(-2px); }
+  .ionsource.cation .iontile { border-color: var(--accent); }
+  .ionsource.anion .iontile { border-color: var(--anion); }
+  .ionsym { font-family: 'Space Mono', monospace; font-size: 1.55rem; font-weight: 700; }
+  .ionsource.cation .ionsym { color: var(--accent); }
+  .ionsource.anion .ionsym { color: var(--anion); }
+  .ionname { font-size: 0.76rem; color: var(--ink-soft); }
+  .ioncount-row { display: flex; align-items: center; gap: 8px; }
+  .ioncount { font-family: 'Space Mono', monospace; font-weight: 700; min-width: 1.4em; text-align: center; }
+  .ctrl.small { padding: 4px 11px; font-size: 0.78rem; border-radius: 8px; }
+
+  .bond-total { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bond-total .k { font-size: 0.72rem; color: var(--ink-faint); }
+  .bond-total .v { font-family: 'Space Mono', monospace; font-size: 1.8rem; font-weight: 700; }
+
+  .ion-tray {
+    display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-content: flex-start;
+    min-height: 44px; padding: 10px; border: 1px dashed var(--grid-line); border-radius: 10px;
+    margin-bottom: 14px;
+  }
+  .ionchip {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--paper-raised);
+  }
+  .ionchip.cation { background: var(--accent); }
+  .ionchip.anion { background: var(--anion); }
+
+  .bond-result { text-align: center; background: var(--stable-bg); border-radius: 12px; padding: 16px; }
+  .bond-formula { font-family: 'Space Mono', monospace; font-size: 1.9rem; font-weight: 700; color: var(--stable); margin: 0; }
+  .bond-ratio { color: var(--ink-soft); font-size: 0.88rem; margin: 4px 0 12px; }
+
+  .checkitem {
+    border: 1.5px solid var(--grid-line); border-radius: 10px; padding: 12px; text-align: center; color: var(--ink-faint);
+  }
+  .checkitem.done { border-color: var(--stable); background: var(--stable-bg); color: var(--ink); }
+  .checkitem .name { font-size: 0.82rem; font-weight: 700; display: block; }
+  .checkitem .formula { font-family: 'Space Mono', monospace; font-size: 0.8rem; margin-top: 4px; }
+  .checkitem .check { font-size: 0.74rem; color: var(--stable); }
+
+  @media (max-width: 640px) {
+    .ionsources { gap: 14px; }
+  }
+
   a, button { font: inherit; }
   button:focus-visible, .elbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -279,21 +370,30 @@
 
   <header>
     <div class="eyebrow">중2 과학 · 이온과 옥텟 규칙</div>
-    <h1>옥텟 규칙 탐구실</h1>
-    <p class="lede">전자를 몇 개 잃거나 얻어야 원자가 안정해질까요? 원소를 고르고, 전자를 넣었다 빼면서 스스로 규칙을 찾아보세요.</p>
-    <p class="howto">
+    <h1>이온 탐구실</h1>
+    <p class="lede">전자를 몇 개 잃거나 얻어야 원자가 안정해질까요? 그렇게 만들어진 이온들은 또 어떤 개수비로 만나 화합물이 될까요?</p>
+  </header>
+
+  <div class="tabbar" role="tablist" aria-label="탐구 단계">
+    <button class="tabbtn" id="tabBtnElectrons" type="button" role="tab" aria-selected="true">⚛ 이온 형성 실험</button>
+    <button class="tabbtn" id="tabBtnBonding" type="button" role="tab" aria-selected="false">🔗 이온 결합 만들기</button>
+  </div>
+
+  <div id="panelElectrons">
+
+  <p class="howto">
       <span><b>①</b> 원소를 선택한다</span>
       <span><b>②</b> 전자를 이동시켜 안정 지점을 찾는다</span>
       <span><b>③</b> 안정할 때마다 기록표에 남긴다</span>
       <span><b>④</b> 다 채우면 규칙이 열린다</span>
-    </p>
-  </header>
+  </p>
 
   <div class="workspace">
     <section class="panel picker" aria-label="원소 선택">
       <p class="panel-title"><span class="num">1</span>원소 선택</p>
       <div class="ptable" id="ptable" role="group" aria-label="원소 주기율표 (1~20번)"></div>
-      <p class="ptable-note">원자 번호 1~20번 원소만 다룹니다. 세로줄이 족이며, 같은 족일수록 바깥 전자 배치가 비슷해요. 14족(탄소, 규소)과 15족(질소, 인)은 이온을 잘 만들지 않는 경향이 있어 뺐어요 — 전자를 3~4개나 옮겨야 해서, 안정해지기보다 전자를 나눠 쓰는 공유 결합을 주로 만들기 때문이에요.</p>
+      <p class="ptable-note">원자 번호 1~20번 원소만 다룹니다. 세로줄이 족이며, 같은 족일수록 바깥 전자 배치가 비슷해요. 14족(탄소, 규소)은 전자를 4개나 옮겨야 해서 이온보다 전자를 나눠 쓰는 공유 결합을 주로 만들기 때문에 뺐어요. 15족에서는 인(P)만 다뤄요. 붕소(B)는 이온으로 잘 존재하지 않아 뺐어요.</p>
+      <p class="ptable-note metal-note">★ 표시된 금속(철, 구리, 아연, 은, 바륨, 납)은 옥텟 규칙을 따르지 않고 잘 알려진 고정 전하를 가져요. 전자를 잃기만 하며 그 전하를 찾아보세요 — 납(Pb)은 14족이지만 무거운 금속이라 예외적으로 이온을 잘 만들어요.</p>
     </section>
 
     <section class="panel visualizer" aria-label="전자 배치 실험">
@@ -354,7 +454,7 @@
     </div>
 
     <div class="rules-content" id="rulesContent" hidden>
-      <p class="rules-banner">🎉 16개 원소를 모두 실험했어요! 기록표에서 찾은 규칙을 정리하면 이래요.</p>
+      <p class="rules-banner">🎉 <span id="totalCountLabel">17</span>개 원소를 모두 실험했어요! 기록표에서 찾은 규칙을 정리하면 이래요.</p>
       <div class="rule-grid">
         <div class="rule-card cation">
           <p class="rule-card-title">⊕ 양이온이 되는 무리</p>
@@ -366,7 +466,7 @@
         <div class="rule-card anion">
           <p class="rule-card-title">⊖ 음이온이 되는 무리</p>
           <ul>
-            <li><span class="tag">15족</span> 전자 <b>3개</b>를 얻는다 <span class="footnote">(질소·인 — 이번 활동엔 없었지만 같은 규칙이 적용돼요)</span></li>
+            <li><span class="tag">15족</span> 전자 <b>3개</b>를 얻는다 <span class="footnote">(질소는 이번 활동엔 없었지만 같은 규칙이 적용돼요)</span></li>
             <li><span class="tag">16족</span> 전자 <b>2개</b>를 얻는다</li>
             <li><span class="tag">17족</span> 전자 <b>1개</b>를 얻는다</li>
           </ul>
@@ -375,6 +475,74 @@
     </div>
   </section>
 
+  </div>
+
+  <div id="panelBonding" hidden>
+
+  <p class="howto">
+      <span><b>①</b> 화합물을 고른다</span>
+      <span><b>②</b> 양이온·음이온을 클릭해 전하 합을 0으로 만든다</span>
+      <span><b>③</b> 완성 표시하고 다음 화합물로</span>
+  </p>
+
+  <section class="panel" aria-label="화합물 선택">
+    <p class="panel-title"><span class="num">1</span>화합물 선택</p>
+    <div class="compound-grid" id="compoundGrid"></div>
+  </section>
+
+  <section class="panel" aria-label="이온 결합 작업대" style="box-shadow: var(--shadow);">
+    <p class="panel-title"><span class="num">2</span>이온 결합 작업대 — <span id="compoundNameLabel">염화 나트륨</span></p>
+
+    <div class="ionsources">
+      <div class="ionsource cation">
+        <button type="button" class="iontile" id="btnAddCation">
+          <span class="ionsym" id="cationSym">Na<sup>+</sup></span>
+          <span class="ionname" id="cationName">나트륨 이온</span>
+        </button>
+        <div class="ioncount-row">
+          <button type="button" class="ctrl minus small" id="btnMinusCation">−</button>
+          <span class="ioncount" id="cationCount">0</span>
+        </div>
+      </div>
+
+      <div class="bond-total">
+        <span class="k">전하 합</span>
+        <span class="v" id="bondSum">0</span>
+        <span class="pill unstable" id="bondPill">불균형</span>
+      </div>
+
+      <div class="ionsource anion">
+        <button type="button" class="iontile" id="btnAddAnion">
+          <span class="ionsym" id="anionSym">Cl<sup>−</sup></span>
+          <span class="ionname" id="anionName">염화 이온</span>
+        </button>
+        <div class="ioncount-row">
+          <button type="button" class="ctrl minus small" id="btnMinusAnion">−</button>
+          <span class="ioncount" id="anionCount">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ion-tray" id="ionTray" aria-label="담은 이온"></div>
+
+    <div class="bond-result" id="bondResult" hidden>
+      <p class="bond-formula" id="bondFormula">NaCl</p>
+      <p class="bond-ratio" id="bondRatio">Na⁺ : Cl⁻ = 1 : 1</p>
+      <button class="ctrl log" id="btnBondComplete" type="button">이 화합물 완성 표시하기 ✓</button>
+    </div>
+
+    <div class="controls" style="margin-top:12px;">
+      <button class="ctrl reset" id="btnBondReset" type="button">↺ 작업대 비우기</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="완성한 화합물">
+    <p class="panel-title"><span class="num">3</span>완성한 화합물<span class="progress-pill" id="bondProgressPill">0 / 6</span></p>
+    <div class="compound-checklist" id="compoundChecklist"></div>
+  </section>
+
+  </div>
+
 </div>
 
 <script>
@@ -382,13 +550,25 @@
   var ELEMENTS = [
     {z:1,sym:'H',name:'수소',g:1,p:1},{z:2,sym:'He',name:'헬륨',g:18,p:1},
     {z:3,sym:'Li',name:'리튬',g:1,p:2},{z:4,sym:'Be',name:'베릴륨',g:2,p:2},
-    {z:5,sym:'B',name:'붕소',g:13,p:2},{z:8,sym:'O',name:'산소',g:16,p:2},
+    {z:8,sym:'O',name:'산소',g:16,p:2},
     {z:9,sym:'F',name:'플루오린',g:17,p:2},{z:10,sym:'Ne',name:'네온',g:18,p:2},
     {z:11,sym:'Na',name:'나트륨',g:1,p:3},{z:12,sym:'Mg',name:'마그네슘',g:2,p:3},
-    {z:13,sym:'Al',name:'알루미늄',g:13,p:3},{z:16,sym:'S',name:'황',g:16,p:3},
+    {z:13,sym:'Al',name:'알루미늄',g:13,p:3},{z:15,sym:'P',name:'인',g:15,p:3},
+    {z:16,sym:'S',name:'황',g:16,p:3},
     {z:17,sym:'Cl',name:'염소',g:17,p:3},{z:18,sym:'Ar',name:'아르곤',g:18,p:3},
     {z:19,sym:'K',name:'칼륨',g:1,p:4},{z:20,sym:'Ca',name:'칼슘',g:2,p:4}
   ];
+
+  // 전이 금속·중금속: 옥텟 규칙이 아니라 잘 알려진 고정 전하로 이온이 됩니다 (전자를 잃기만 함).
+  var METALS = [
+    { z:26, sym:'Fe', name:'철',   g:8,  p:4, shellsOverride:[2,8,14,2],    knownCharges:[2,3] },
+    { z:29, sym:'Cu', name:'구리', g:11, p:4, shellsOverride:[2,8,18,1],    knownCharges:[1,2] },
+    { z:30, sym:'Zn', name:'아연', g:12, p:4, shellsOverride:[2,8,18,2],    knownCharges:[2] },
+    { z:47, sym:'Ag', name:'은',   g:11, p:5, shellsOverride:[2,8,18,18,1], knownCharges:[1] },
+    { z:56, sym:'Ba', name:'바륨', g:2,  p:6, shellsOverride:[2,8,18,18,8,2], knownCharges:[2] },
+    { z:82, sym:'Pb', name:'납',   g:14, p:6, shellsOverride:[2,8,18,32,18,4], knownCharges:[2,4] }
+  ];
+  var ALL_ELEMENTS = ELEMENTS.concat(METALS);
 
   var svgNS = 'http://www.w3.org/2000/svg';
   var ptable = document.getElementById('ptable');
@@ -428,9 +608,9 @@
   }
 
   function buildPtable() {
-    ELEMENTS.forEach(function (el) {
+    ALL_ELEMENTS.forEach(function (el) {
       var b = document.createElement('button');
-      b.className = 'elbtn';
+      b.className = 'elbtn' + (el.knownCharges ? ' metal' : '');
       b.style.setProperty('--g', el.g);
       b.style.gridRowStart = el.p;
       b.type = 'button';
@@ -443,8 +623,8 @@
   }
 
   function selectElement(z) {
-    current = ELEMENTS.filter(function (e) { return e.z === z; })[0];
-    base = computeShells(z);
+    current = ALL_ELEMENTS.filter(function (e) { return e.z === z; })[0];
+    base = current.shellsOverride ? current.shellsOverride.slice() : computeShells(z);
     shells = base.slice();
     Array.prototype.forEach.call(ptable.children, function (b) {
       b.setAttribute('aria-pressed', String(Number(b.dataset.z) === z));
@@ -457,6 +637,7 @@
   }
 
   function isStable() {
+    if (current.knownCharges) return current.knownCharges.indexOf(charge()) !== -1;
     if (shells.length === 0) return true;
     var last = shells.length - 1;
     return shells[last] === shellCapacity(last);
@@ -548,17 +729,21 @@
       ionReadout.innerHTML = ionLabel(current.sym, ch) + ' 이온이 만들어졌어요';
     } else if (stable && ch === 0) {
       ionReadout.innerHTML = '중성 원자 상태예요';
+    } else if (current.knownCharges) {
+      var target = current.knownCharges.map(function (c) { return '+' + c; }).join(' 또는 ');
+      ionReadout.innerHTML = '<span style="color:var(--ink-faint); font-size:1rem;">이 원소는 보통 ' + target + ' 전하의 이온이 돼요 — 전자를 잃어보세요</span>';
     } else {
       ionReadout.innerHTML = '<span style="color:var(--ink-faint); font-size:1rem;">아직 안정하지 않아요 — 계속 실험해 보세요</span>';
     }
 
     var last = shells.length - 1;
-    btnPlus.disabled = shells.length === 0 ? false : shells[last] >= shellCapacity(last);
+    btnPlus.disabled = current.knownCharges ? true : (shells.length === 0 ? false : shells[last] >= shellCapacity(last));
     btnMinus.disabled = shells.length === 0;
     btnLog.disabled = !stable;
   }
 
   function addElectron() {
+    if (current.knownCharges) return;
     if (shells.length === 0) { shells.push(1); render(); return; }
     var last = shells.length - 1;
     if (shells[last] < shellCapacity(last)) {
@@ -595,7 +780,7 @@
   }
 
   function updateProgress() {
-    var count = Object.keys(logMap).length;
+    var count = ELEMENTS.filter(function (el) { return logMap.hasOwnProperty(el.z); }).length;
     var total = ELEMENTS.length;
     var pct = Math.round((count / total) * 100);
     progressFill.style.width = pct + '%';
@@ -631,7 +816,166 @@
   btnReset.addEventListener('click', resetElement);
   btnLog.addEventListener('click', logCurrent);
 
+  var totalCountLabel = document.getElementById('totalCountLabel');
+  if (totalCountLabel) totalCountLabel.textContent = ELEMENTS.length;
+
   updateProgress();
   selectElement(11); // 나트륨으로 시작
+
+  /* ---------- tabs ---------- */
+  var tabBtnElectrons = document.getElementById('tabBtnElectrons');
+  var tabBtnBonding = document.getElementById('tabBtnBonding');
+  var panelElectrons = document.getElementById('panelElectrons');
+  var panelBonding = document.getElementById('panelBonding');
+
+  function switchTab(name) {
+    var toBonding = name === 'bonding';
+    tabBtnElectrons.setAttribute('aria-selected', String(!toBonding));
+    tabBtnBonding.setAttribute('aria-selected', String(toBonding));
+    panelElectrons.hidden = toBonding;
+    panelBonding.hidden = !toBonding;
+  }
+  tabBtnElectrons.addEventListener('click', function () { switchTab('electrons'); });
+  tabBtnBonding.addEventListener('click', function () { switchTab('bonding'); });
+
+  /* ---------- ionic bonding tab ---------- */
+  var COMPOUNDS = [
+    { id: 'nacl',  name: '염화 나트륨',   cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
+    { id: 'mgcl2', name: '염화마그네슘',  cSym: 'Mg', cName: '마그네슘 이온', cCharge: 2, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
+    { id: 'li2o',  name: '산화리튬',     cSym: 'Li', cName: '리튬 이온',   cCharge: 1, aSym: 'O',  aName: '산화 이온', aCharge: -2 },
+    { id: 'kcl',   name: '염화칼륨',     cSym: 'K',  cName: '칼륨 이온',   cCharge: 1, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
+    { id: 'cacl2', name: '염화칼슘',     cSym: 'Ca', cName: '칼슘 이온',   cCharge: 2, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
+    { id: 'naf',   name: '플루오린화나트륨', cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'F', aName: '플루오린화 이온', aCharge: -1 }
+  ];
+
+  var compoundGrid = document.getElementById('compoundGrid');
+  var compoundChecklist = document.getElementById('compoundChecklist');
+  var compoundNameLabel = document.getElementById('compoundNameLabel');
+  var cationSym = document.getElementById('cationSym');
+  var cationName = document.getElementById('cationName');
+  var anionSym = document.getElementById('anionSym');
+  var anionName = document.getElementById('anionName');
+  var cationCountEl = document.getElementById('cationCount');
+  var anionCountEl = document.getElementById('anionCount');
+  var btnAddCation = document.getElementById('btnAddCation');
+  var btnAddAnion = document.getElementById('btnAddAnion');
+  var btnMinusCation = document.getElementById('btnMinusCation');
+  var btnMinusAnion = document.getElementById('btnMinusAnion');
+  var btnBondReset = document.getElementById('btnBondReset');
+  var btnBondComplete = document.getElementById('btnBondComplete');
+  var ionTray = document.getElementById('ionTray');
+  var bondSum = document.getElementById('bondSum');
+  var bondPill = document.getElementById('bondPill');
+  var bondResult = document.getElementById('bondResult');
+  var bondFormula = document.getElementById('bondFormula');
+  var bondRatio = document.getElementById('bondRatio');
+  var bondProgressPill = document.getElementById('bondProgressPill');
+
+  var bondCompound = COMPOUNDS[0];
+  var cationCount = 0, anionCount = 0;
+  var bondDone = {};
+  var MAX_IONS = 6;
+
+  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+  function chargeSup(charge) {
+    var n = Math.abs(charge);
+    return (n === 1 ? '' : n) + (charge > 0 ? '+' : '−');
+  }
+
+  function buildCompoundGrid() {
+    COMPOUNDS.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'compoundbtn';
+      b.setAttribute('aria-pressed', 'false');
+      b.dataset.id = c.id;
+      b.innerHTML = '<span class="name">' + c.name + '</span><span class="formula-hint">' +
+        c.cSym + '<sup>' + chargeSup(c.cCharge) + '</sup> + ' + c.aSym + '<sup>' + chargeSup(c.aCharge) + '</sup></span>';
+      b.addEventListener('click', function () { selectCompound(c.id); });
+      compoundGrid.appendChild(b);
+    });
+  }
+
+  function selectCompound(id) {
+    bondCompound = COMPOUNDS.filter(function (c) { return c.id === id; })[0];
+    cationCount = 0; anionCount = 0;
+    compoundNameLabel.textContent = bondCompound.name;
+    cationSym.innerHTML = bondCompound.cSym + '<sup>' + chargeSup(bondCompound.cCharge) + '</sup>';
+    cationName.textContent = bondCompound.cName;
+    anionSym.innerHTML = bondCompound.aSym + '<sup>' + chargeSup(bondCompound.aCharge) + '</sup>';
+    anionName.textContent = bondCompound.aName;
+    Array.prototype.forEach.call(compoundGrid.children, function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.id === id));
+    });
+    renderBond();
+  }
+
+  function formatFormula(cCount, aCount) {
+    var g = gcd(cCount, aCount) || 1;
+    var cc = cCount / g, ac = aCount / g;
+    var csub = cc > 1 ? '<sub>' + cc + '</sub>' : '';
+    var asub = ac > 1 ? '<sub>' + ac + '</sub>' : '';
+    return { html: bondCompound.cSym + csub + bondCompound.aSym + asub, cc: cc, ac: ac };
+  }
+
+  function renderBond() {
+    cationCountEl.textContent = cationCount;
+    anionCountEl.textContent = anionCount;
+    btnAddCation.disabled = cationCount >= MAX_IONS;
+    btnAddAnion.disabled = anionCount >= MAX_IONS;
+    btnMinusCation.disabled = cationCount === 0;
+    btnMinusAnion.disabled = anionCount === 0;
+
+    var chips = '';
+    for (var i = 0; i < cationCount; i++) chips += '<span class="ionchip cation">' + bondCompound.cSym + '</span>';
+    for (var j = 0; j < anionCount; j++) chips += '<span class="ionchip anion">' + bondCompound.aSym + '</span>';
+    ionTray.innerHTML = chips;
+
+    var sum = cationCount * bondCompound.cCharge + anionCount * bondCompound.aCharge;
+    bondSum.textContent = (sum > 0 ? '+' : '') + sum;
+    var balanced = sum === 0 && cationCount > 0 && anionCount > 0;
+    bondPill.textContent = balanced ? '균형' : '불균형';
+    bondPill.className = 'pill ' + (balanced ? 'stable' : 'unstable');
+
+    if (balanced) {
+      var f = formatFormula(cationCount, anionCount);
+      bondFormula.innerHTML = f.html;
+      bondRatio.innerHTML = bondCompound.cSym + '<sup>' + chargeSup(bondCompound.cCharge) + '</sup> : ' +
+        bondCompound.aSym + '<sup>' + chargeSup(bondCompound.aCharge) + '</sup> = ' + f.cc + ' : ' + f.ac;
+      bondResult.hidden = false;
+    } else {
+      bondResult.hidden = true;
+    }
+  }
+
+  function renderChecklist() {
+    compoundChecklist.innerHTML = COMPOUNDS.map(function (c) {
+      var done = !!bondDone[c.id];
+      return '<div class="checkitem' + (done ? ' done' : '') + '">' +
+        '<span class="name">' + c.name + '</span>' +
+        '<span class="formula">' + (done ? bondDone[c.id] : '?') + '</span>' +
+        (done ? '<div class="check">✓ 완성</div>' : '') +
+        '</div>';
+    }).join('');
+    bondProgressPill.textContent = Object.keys(bondDone).length + ' / ' + COMPOUNDS.length;
+  }
+
+  buildCompoundGrid();
+  btnAddCation.addEventListener('click', function () { if (cationCount < MAX_IONS) { cationCount++; renderBond(); } });
+  btnAddAnion.addEventListener('click', function () { if (anionCount < MAX_IONS) { anionCount++; renderBond(); } });
+  btnMinusCation.addEventListener('click', function () { if (cationCount > 0) { cationCount--; renderBond(); } });
+  btnMinusAnion.addEventListener('click', function () { if (anionCount > 0) { anionCount--; renderBond(); } });
+  btnBondReset.addEventListener('click', function () { cationCount = 0; anionCount = 0; renderBond(); });
+  btnBondComplete.addEventListener('click', function () {
+    var f = formatFormula(cationCount, anionCount);
+    var tmp = document.createElement('div');
+    tmp.innerHTML = f.html;
+    bondDone[bondCompound.id] = tmp.textContent;
+    renderChecklist();
+  });
+
+  selectCompound(COMPOUNDS[0].id);
+  renderChecklist();
 })();
 </script>

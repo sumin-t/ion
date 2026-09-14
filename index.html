@@ -1,0 +1,637 @@
+<title>옥텟 규칙 탐구실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap">
+<style>
+  :root {
+    --paper: #eef4fa;
+    --paper-raised: #ffffff;
+    --grid-line: #c7d9e8;
+    --ink: #16273e;
+    --ink-soft: #4c6280;
+    --ink-faint: #7d93ad;
+    --accent: #d97e1f;
+    --accent-soft: #f3d6ac;
+    --stable: #1f8a5f;
+    --stable-bg: #dff2e8;
+    --unstable: #c14b39;
+    --unstable-bg: #fbe3de;
+    --shadow: 0 18px 40px -20px rgba(22, 39, 62, 0.35);
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0e1f34;
+      --paper-raised: #142a45;
+      --grid-line: #2a4b6b;
+      --ink: #eaf2fa;
+      --ink-soft: #a9c1da;
+      --ink-faint: #7591ae;
+      --accent: #efa24a;
+      --accent-soft: #4a3820;
+      --stable: #49cd93;
+      --stable-bg: #123527;
+      --unstable: #ef8571;
+      --unstable-bg: #3a2019;
+      --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #0e1f34;
+    --paper-raised: #142a45;
+    --grid-line: #2a4b6b;
+    --ink: #eaf2fa;
+    --ink-soft: #a9c1da;
+    --ink-faint: #7591ae;
+    --accent: #efa24a;
+    --accent-soft: #4a3820;
+    --stable: #49cd93;
+    --stable-bg: #123527;
+    --unstable: #ef8571;
+    --unstable-bg: #3a2019;
+    --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 28px 28px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 28px 28px,
+      var(--paper);
+    background-attachment: local;
+    color: var(--ink);
+    font-family: 'Gothic A1', sans-serif;
+    padding: 28px 20px 60px;
+    line-height: 1.6;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+
+  /* header */
+  header { display: flex; flex-direction: column; gap: 6px; }
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 22px; height: 2px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  h1 {
+    font-family: 'Black Han Sans', 'Gothic A1', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.9rem, 4.6vw, 3rem);
+    margin: 0;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+  .lede { color: var(--ink-soft); max-width: 62ch; font-size: 0.98rem; }
+  .howto {
+    display: flex; flex-wrap: wrap; gap: 10px 18px;
+    font-size: 0.86rem; color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .howto b { color: var(--ink); font-weight: 700; }
+
+  /* panel base */
+  .panel {
+    background: var(--paper-raised);
+    border-radius: 14px;
+    padding: 18px 18px 20px;
+    border: 1px solid var(--grid-line);
+  }
+  .panel-title {
+    font-weight: 900; font-size: 0.95rem;
+    display: flex; align-items: center; gap: 8px;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  .panel-title .num {
+    font-family: 'Space Mono', monospace;
+    background: var(--accent); color: var(--paper-raised);
+    width: 22px; height: 22px; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; flex: none;
+  }
+  .progress-pill {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace; font-size: 0.76rem; font-weight: 400;
+    color: var(--ink-soft); background: var(--paper);
+    border: 1px solid var(--grid-line); padding: 3px 11px; border-radius: 999px;
+  }
+
+  /* workspace */
+  .workspace { display: flex; gap: 20px; flex-wrap: wrap; align-items: stretch; }
+  .picker { flex: 1 1 300px; border-style: dashed; }
+  .visualizer { flex: 1.5 1 420px; box-shadow: var(--shadow); }
+
+  .ptable {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 4px;
+  }
+  .elbtn {
+    grid-column: var(--g);
+    aspect-ratio: 1;
+    border: 1.5px solid var(--grid-line);
+    background: transparent;
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: 'Gothic A1', sans-serif;
+    font-weight: 700;
+    font-size: clamp(0.62rem, 1.7vw, 0.85rem);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .elbtn .z {
+    position: absolute; top: 1px; left: 3px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem; color: var(--ink-faint);
+  }
+  .elbtn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .elbtn[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--paper-raised);
+  }
+  .elbtn[aria-pressed="true"] .z { color: var(--paper-raised); opacity: .85; }
+  .ptable-note {
+    margin-top: 12px; font-size: 0.78rem; color: var(--ink-faint);
+  }
+
+  /* visualizer */
+  .stage {
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .stage svg { width: 100%; max-width: 320px; height: auto; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  button.ctrl {
+    font-family: 'Gothic A1', sans-serif; font-weight: 700; font-size: 0.88rem;
+    padding: 10px 16px; border-radius: 10px; border: 1.5px solid var(--grid-line);
+    background: var(--paper-raised); color: var(--ink); cursor: pointer;
+    transition: border-color .12s ease, opacity .12s ease;
+  }
+  button.ctrl:hover:not(:disabled) { border-color: var(--accent); }
+  button.ctrl:disabled { opacity: 0.35; cursor: not-allowed; }
+  button.ctrl.plus { border-color: var(--accent); color: var(--accent); }
+  button.ctrl.minus { border-color: var(--ink-faint); }
+  button.ctrl.reset { font-size: 0.8rem; color: var(--ink-soft); }
+  button.ctrl.log {
+    background: var(--accent); color: var(--paper-raised); border-color: var(--accent);
+  }
+
+  .readout {
+    width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin-top: 4px;
+  }
+  .stat {
+    border-top: 1px solid var(--grid-line);
+    padding-top: 8px;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .stat .k { font-size: 0.72rem; color: var(--ink-faint); }
+  .stat .v { font-family: 'Space Mono', monospace; font-size: 1.05rem; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 700; width: fit-content;
+  }
+  .pill.stable { background: var(--stable-bg); color: var(--stable); }
+  .pill.unstable { background: var(--unstable-bg); color: var(--unstable); }
+
+  .ion-readout {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    min-height: 2.2rem;
+    color: var(--ink);
+  }
+  .ion-readout sup { color: var(--accent); }
+
+  /* log table */
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 0.88rem; }
+  thead th {
+    text-align: left; font-family: 'Space Mono', monospace; font-weight: 400;
+    font-size: 0.72rem; color: var(--ink-faint); letter-spacing: 0.04em;
+    padding: 6px 10px; border-bottom: 2px solid var(--grid-line);
+  }
+  tbody td { padding: 8px 10px; border-bottom: 1px solid var(--grid-line); }
+  tbody tr:hover { background: var(--accent-soft); }
+  .empty-row td { color: var(--ink-faint); font-style: italic; text-align: center; padding: 20px 10px; }
+  .tag { font-family: 'Space Mono', monospace; font-size: 0.78rem; color: var(--ink-soft); }
+
+  /* rules panel */
+  .locked { padding: 18px 10px 6px; text-align: center; }
+  .progress-track {
+    height: 8px; border-radius: 999px; background: var(--grid-line);
+    overflow: hidden; max-width: 320px; margin: 0 auto;
+  }
+  .progress-fill { height: 100%; background: var(--accent); transition: width .25s ease; }
+  .locked-msg { margin-top: 12px; color: var(--ink-soft); font-size: 0.9rem; }
+  .locked-msg b { color: var(--ink); font-family: 'Space Mono', monospace; }
+
+  .rules-banner { font-weight: 700; margin: 0 0 14px; }
+  .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .rule-card {
+    border: 1.5px solid var(--grid-line); border-radius: 12px; padding: 14px 16px;
+  }
+  .rule-card.cation { border-color: var(--accent); }
+  .rule-card.anion { border-color: var(--ink-faint); }
+  .rule-card-title { font-weight: 900; margin: 0 0 10px; font-size: 0.92rem; }
+  .rule-card ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .rule-card li { display: flex; align-items: baseline; gap: 8px; font-size: 0.92rem; flex-wrap: wrap; }
+  .rule-card .tag {
+    font-family: 'Space Mono', monospace; background: var(--accent-soft); color: var(--ink);
+    padding: 2px 8px; border-radius: 6px; font-size: 0.78rem; flex: none;
+  }
+  .rule-card .footnote { font-size: 0.76rem; color: var(--ink-faint); }
+
+  @media (max-width: 640px) {
+    .rule-grid { grid-template-columns: 1fr; }
+  }
+
+  a, button { font: inherit; }
+  button:focus-visible, .elbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+  @media (max-width: 640px) {
+    .readout { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">중2 과학 · 이온과 옥텟 규칙</div>
+    <h1>옥텟 규칙 탐구실</h1>
+    <p class="lede">전자를 몇 개 잃거나 얻어야 원자가 안정해질까요? 원소를 고르고, 전자를 넣었다 빼면서 스스로 규칙을 찾아보세요.</p>
+    <p class="howto">
+      <span><b>①</b> 원소를 선택한다</span>
+      <span><b>②</b> 전자를 이동시켜 안정 지점을 찾는다</span>
+      <span><b>③</b> 안정할 때마다 기록표에 남긴다</span>
+      <span><b>④</b> 다 채우면 규칙이 열린다</span>
+    </p>
+  </header>
+
+  <div class="workspace">
+    <section class="panel picker" aria-label="원소 선택">
+      <p class="panel-title"><span class="num">1</span>원소 선택</p>
+      <div class="ptable" id="ptable" role="group" aria-label="원소 주기율표 (1~20번)"></div>
+      <p class="ptable-note">원자 번호 1~20번 원소만 다룹니다. 세로줄이 족이며, 같은 족일수록 바깥 전자 배치가 비슷해요. 14족(탄소, 규소)과 15족(질소, 인)은 이온을 잘 만들지 않는 경향이 있어 뺐어요 — 전자를 3~4개나 옮겨야 해서, 안정해지기보다 전자를 나눠 쓰는 공유 결합을 주로 만들기 때문이에요.</p>
+    </section>
+
+    <section class="panel visualizer" aria-label="전자 배치 실험">
+      <p class="panel-title"><span class="num">2</span>전자 배치 실험</p>
+      <div class="stage">
+        <svg id="atomSvg" viewBox="0 0 320 320" role="img" aria-label="원자 전자 배치 그림"></svg>
+
+        <div class="controls">
+          <button class="ctrl minus" id="btnMinus" type="button">− 전자 내보내기</button>
+          <button class="ctrl plus" id="btnPlus" type="button">+ 전자 받아들이기</button>
+          <button class="ctrl reset" id="btnReset" type="button">↺ 처음으로</button>
+        </div>
+
+        <div class="readout">
+          <div class="stat">
+            <span class="k">전자 배치</span>
+            <span class="v" id="statConfig">2, 8, 1</span>
+          </div>
+          <div class="stat">
+            <span class="k">전하</span>
+            <span class="v" id="statCharge">0</span>
+          </div>
+          <div class="stat">
+            <span class="k">상태</span>
+            <span class="pill" id="statPill">불안정</span>
+          </div>
+        </div>
+
+        <div class="ion-readout" id="ionReadout" aria-live="polite"></div>
+
+        <button class="ctrl log" id="btnLog" type="button" disabled>이 결과 기록표에 남기기 ✎</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" aria-label="탐구 기록표">
+    <p class="panel-title"><span class="num">3</span>탐구 기록표<span class="progress-pill" id="progressPill">0 / 16</span></p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>원소</th><th>족</th><th>원자가 전자</th><th>이동</th><th>개수</th><th>생성된 이온</th>
+          </tr>
+        </thead>
+        <tbody id="logBody">
+          <tr class="empty-row"><td colspan="6">아직 기록이 없어요. 원소를 실험하고 안정해지면 위 버튼으로 기록해 보세요.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="규칙 정리">
+    <p class="panel-title"><span class="num">4</span>규칙 한눈에 보기</p>
+
+    <div class="locked" id="rulesLocked">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <p class="locked-msg">🔒 원소 <b id="progressText">0 / 16</b>개를 모두 기록하면 규칙이 열려요.</p>
+    </div>
+
+    <div class="rules-content" id="rulesContent" hidden>
+      <p class="rules-banner">🎉 16개 원소를 모두 실험했어요! 기록표에서 찾은 규칙을 정리하면 이래요.</p>
+      <div class="rule-grid">
+        <div class="rule-card cation">
+          <p class="rule-card-title">⊕ 양이온이 되는 무리</p>
+          <ul>
+            <li><span class="tag">1족</span> 전자 <b>1개</b>를 잃는다</li>
+            <li><span class="tag">2족</span> 전자 <b>2개</b>를 잃는다</li>
+          </ul>
+        </div>
+        <div class="rule-card anion">
+          <p class="rule-card-title">⊖ 음이온이 되는 무리</p>
+          <ul>
+            <li><span class="tag">15족</span> 전자 <b>3개</b>를 얻는다 <span class="footnote">(질소·인 — 이번 활동엔 없었지만 같은 규칙이 적용돼요)</span></li>
+            <li><span class="tag">16족</span> 전자 <b>2개</b>를 얻는다</li>
+            <li><span class="tag">17족</span> 전자 <b>1개</b>를 얻는다</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var ELEMENTS = [
+    {z:1,sym:'H',name:'수소',g:1,p:1},{z:2,sym:'He',name:'헬륨',g:18,p:1},
+    {z:3,sym:'Li',name:'리튬',g:1,p:2},{z:4,sym:'Be',name:'베릴륨',g:2,p:2},
+    {z:5,sym:'B',name:'붕소',g:13,p:2},{z:8,sym:'O',name:'산소',g:16,p:2},
+    {z:9,sym:'F',name:'플루오린',g:17,p:2},{z:10,sym:'Ne',name:'네온',g:18,p:2},
+    {z:11,sym:'Na',name:'나트륨',g:1,p:3},{z:12,sym:'Mg',name:'마그네슘',g:2,p:3},
+    {z:13,sym:'Al',name:'알루미늄',g:13,p:3},{z:16,sym:'S',name:'황',g:16,p:3},
+    {z:17,sym:'Cl',name:'염소',g:17,p:3},{z:18,sym:'Ar',name:'아르곤',g:18,p:3},
+    {z:19,sym:'K',name:'칼륨',g:1,p:4},{z:20,sym:'Ca',name:'칼슘',g:2,p:4}
+  ];
+
+  var svgNS = 'http://www.w3.org/2000/svg';
+  var ptable = document.getElementById('ptable');
+  var svg = document.getElementById('atomSvg');
+  var statConfig = document.getElementById('statConfig');
+  var statCharge = document.getElementById('statCharge');
+  var statPill = document.getElementById('statPill');
+  var ionReadout = document.getElementById('ionReadout');
+  var btnMinus = document.getElementById('btnMinus');
+  var btnPlus = document.getElementById('btnPlus');
+  var btnReset = document.getElementById('btnReset');
+  var btnLog = document.getElementById('btnLog');
+  var logBody = document.getElementById('logBody');
+  var progressPill = document.getElementById('progressPill');
+  var progressFill = document.getElementById('progressFill');
+  var progressText = document.getElementById('progressText');
+  var rulesLocked = document.getElementById('rulesLocked');
+  var rulesContent = document.getElementById('rulesContent');
+
+  var current = null;   // selected element object
+  var shells = [];      // mutable current shell array
+  var base = [];         // neutral-atom shell array
+  var logMap = {};       // z -> row data
+
+  function shellCapacity(idx) { return idx === 0 ? 2 : 8; }
+
+  function computeShells(z) {
+    var rem = z, out = [], idx = 0;
+    while (rem > 0) {
+      var cap = shellCapacity(idx);
+      var take = Math.min(cap, rem);
+      out.push(take);
+      rem -= take;
+      idx++;
+    }
+    return out;
+  }
+
+  function buildPtable() {
+    ELEMENTS.forEach(function (el) {
+      var b = document.createElement('button');
+      b.className = 'elbtn';
+      b.style.setProperty('--g', el.g);
+      b.style.gridRowStart = el.p;
+      b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.dataset.z = el.z;
+      b.innerHTML = '<span class="z">' + el.z + '</span>' + el.sym;
+      b.addEventListener('click', function () { selectElement(el.z); });
+      ptable.appendChild(b);
+    });
+  }
+
+  function selectElement(z) {
+    current = ELEMENTS.filter(function (e) { return e.z === z; })[0];
+    base = computeShells(z);
+    shells = base.slice();
+    Array.prototype.forEach.call(ptable.children, function (b) {
+      b.setAttribute('aria-pressed', String(Number(b.dataset.z) === z));
+    });
+    render();
+  }
+
+  function totalElectrons() {
+    return shells.reduce(function (a, b) { return a + b; }, 0);
+  }
+
+  function isStable() {
+    if (shells.length === 0) return true;
+    var last = shells.length - 1;
+    return shells[last] === shellCapacity(last);
+  }
+
+  function charge() {
+    return current.z - totalElectrons();
+  }
+
+  function ionLabel(sym, ch) {
+    if (ch === 0) return sym;
+    var n = Math.abs(ch);
+    var sup = (n === 1 ? '' : n) + (ch > 0 ? '+' : '−');
+    return sym + '<sup>' + sup + '</sup>';
+  }
+
+  function drawAtom() {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var cx = 160, cy = 160;
+    var radii = [58, 92, 126, 160];
+    var inkSoft = getComputedStyle(document.documentElement).getPropertyValue('--ink-faint').trim();
+    var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    var ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+    var paper = getComputedStyle(document.documentElement).getPropertyValue('--paper-raised').trim();
+
+    shells.forEach(function (count, i) {
+      var isOuter = i === shells.length - 1;
+      var ring = document.createElementNS(svgNS, 'circle');
+      ring.setAttribute('cx', cx); ring.setAttribute('cy', cy);
+      ring.setAttribute('r', radii[i]);
+      ring.setAttribute('fill', 'none');
+      ring.setAttribute('stroke', isOuter ? accent : inkSoft);
+      ring.setAttribute('stroke-width', isOuter ? 2 : 1.2);
+      ring.setAttribute('stroke-dasharray', isOuter ? '3 5' : 'none');
+      ring.setAttribute('opacity', isOuter ? '0.9' : '0.45');
+      svg.appendChild(ring);
+
+      for (var k = 0; k < count; k++) {
+        var angle = (Math.PI * 2 * k) / count - Math.PI / 2;
+        var ex = cx + radii[i] * Math.cos(angle);
+        var ey = cy + radii[i] * Math.sin(angle);
+        var e = document.createElementNS(svgNS, 'circle');
+        e.setAttribute('cx', ex); e.setAttribute('cy', ey);
+        e.setAttribute('r', isOuter ? 7 : 5);
+        e.setAttribute('fill', isOuter ? accent : ink);
+        e.setAttribute('opacity', isOuter ? '1' : '0.55');
+        svg.appendChild(e);
+      }
+    });
+
+    var nucleus = document.createElementNS(svgNS, 'circle');
+    nucleus.setAttribute('cx', cx); nucleus.setAttribute('cy', cy);
+    nucleus.setAttribute('r', 32);
+    nucleus.setAttribute('fill', ink);
+    svg.appendChild(nucleus);
+
+    var sym = document.createElementNS(svgNS, 'text');
+    sym.setAttribute('x', cx); sym.setAttribute('y', cy - 2);
+    sym.setAttribute('text-anchor', 'middle');
+    sym.setAttribute('font-family', 'Gothic A1, sans-serif');
+    sym.setAttribute('font-weight', '900');
+    sym.setAttribute('font-size', '20');
+    sym.setAttribute('fill', paper);
+    sym.textContent = current.sym;
+    svg.appendChild(sym);
+
+    var zLabel = document.createElementNS(svgNS, 'text');
+    zLabel.setAttribute('x', cx); zLabel.setAttribute('y', cy + 15);
+    zLabel.setAttribute('text-anchor', 'middle');
+    zLabel.setAttribute('font-family', 'Space Mono, monospace');
+    zLabel.setAttribute('font-size', '10');
+    zLabel.setAttribute('fill', paper);
+    zLabel.setAttribute('opacity', '0.75');
+    zLabel.textContent = '양성자 ' + current.z;
+    svg.appendChild(zLabel);
+  }
+
+  function render() {
+    drawAtom();
+    statConfig.textContent = shells.length ? shells.join(', ') : '없음 (전자 0개)';
+    var ch = charge();
+    statCharge.textContent = (ch > 0 ? '+' : '') + ch;
+
+    var stable = isStable();
+    statPill.textContent = stable ? '안정' : '불안정';
+    statPill.className = 'pill ' + (stable ? 'stable' : 'unstable');
+
+    if (stable && ch !== 0) {
+      ionReadout.innerHTML = ionLabel(current.sym, ch) + ' 이온이 만들어졌어요';
+    } else if (stable && ch === 0) {
+      ionReadout.innerHTML = '중성 원자 상태예요';
+    } else {
+      ionReadout.innerHTML = '<span style="color:var(--ink-faint); font-size:1rem;">아직 안정하지 않아요 — 계속 실험해 보세요</span>';
+    }
+
+    var last = shells.length - 1;
+    btnPlus.disabled = shells.length === 0 ? false : shells[last] >= shellCapacity(last);
+    btnMinus.disabled = shells.length === 0;
+    btnLog.disabled = !stable;
+  }
+
+  function addElectron() {
+    if (shells.length === 0) { shells.push(1); render(); return; }
+    var last = shells.length - 1;
+    if (shells[last] < shellCapacity(last)) {
+      shells[last]++;
+      render();
+    }
+  }
+
+  function removeElectron() {
+    if (shells.length === 0) return;
+    var last = shells.length - 1;
+    shells[last]--;
+    if (shells[last] === 0) shells.pop();
+    render();
+  }
+
+  function resetElement() {
+    shells = base.slice();
+    render();
+  }
+
+  function logCurrent() {
+    var ch = charge();
+    var moved = Math.abs(ch);
+    var dir = ch > 0 ? '잃음' : (ch < 0 ? '얻음' : '없음');
+    var valence = base[base.length - 1];
+    logMap[current.z] = {
+      z: current.z, sym: current.sym, name: current.name, g: current.g,
+      valence: valence, dir: dir, moved: moved,
+      ion: ch === 0 ? '—' : ionLabel(current.sym, ch)
+    };
+    renderLog();
+    updateProgress();
+  }
+
+  function updateProgress() {
+    var count = Object.keys(logMap).length;
+    var total = ELEMENTS.length;
+    var pct = Math.round((count / total) * 100);
+    progressFill.style.width = pct + '%';
+    progressPill.textContent = count + ' / ' + total;
+    progressText.textContent = count + ' / ' + total;
+    var done = count === total;
+    rulesLocked.hidden = done;
+    rulesContent.hidden = !done;
+  }
+
+  function renderLog() {
+    var rows = Object.keys(logMap).map(function (k) { return logMap[k]; });
+    if (rows.length === 0) {
+      logBody.innerHTML = '<tr class="empty-row"><td colspan="6">아직 기록이 없어요. 원소를 실험하고 안정해지면 위 버튼으로 기록해 보세요.</td></tr>';
+      return;
+    }
+    rows.sort(function (a, b) { return a.g - b.g || a.z - b.z; });
+    logBody.innerHTML = rows.map(function (r) {
+      return '<tr>' +
+        '<td>' + r.sym + ' <span class="tag">' + r.name + '</span></td>' +
+        '<td class="tag">' + r.g + '족</td>' +
+        '<td class="tag">' + r.valence + '</td>' +
+        '<td>' + r.dir + '</td>' +
+        '<td class="tag">' + r.moved + '</td>' +
+        '<td>' + r.ion + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  buildPtable();
+  btnPlus.addEventListener('click', addElectron);
+  btnMinus.addEventListener('click', removeElectron);
+  btnReset.addEventListener('click', resetElement);
+  btnLog.addEventListener('click', logCurrent);
+
+  updateProgress();
+  selectElement(11); // 나트륨으로 시작
+})();
+</script>

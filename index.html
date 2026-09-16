@@ -331,9 +331,9 @@
     margin-bottom: 14px;
   }
   .ionchip {
-    width: 34px; height: 34px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--paper-raised);
+    min-width: 30px; height: 28px; padding: 0 7px; border-radius: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700; color: var(--paper-raised);
   }
   .ionchip.cation { background: var(--accent); }
   .ionchip.anion { background: var(--anion); }
@@ -845,7 +845,9 @@
     { id: 'li2o',  name: '산화리튬',     cSym: 'Li', cName: '리튬 이온',   cCharge: 1, aSym: 'O',  aName: '산화 이온', aCharge: -2 },
     { id: 'kcl',   name: '염화칼륨',     cSym: 'K',  cName: '칼륨 이온',   cCharge: 1, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
     { id: 'cacl2', name: '염화칼슘',     cSym: 'Ca', cName: '칼슘 이온',   cCharge: 2, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
-    { id: 'naf',   name: '플루오린화나트륨', cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'F', aName: '플루오린화 이온', aCharge: -1 }
+    { id: 'naf',   name: '플루오린화나트륨', cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'F', aName: '플루오린화 이온', aCharge: -1 },
+    { id: 'nahco3', name: '탄산수소나트륨', cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'HCO3', aName: '탄산수소 이온', aCharge: -1 },
+    { id: 'caso4', name: '황산칼슘',    cSym: 'Ca', cName: '칼슘 이온',   cCharge: 2, aSym: 'SO4', aName: '황산 이온', aCharge: -2 }
   ];
 
   var compoundGrid = document.getElementById('compoundGrid');
@@ -883,6 +885,9 @@
     return (n === 1 ? '' : n) + (charge > 0 ? '+' : '−');
   }
 
+  // 다원자 이온(HCO3, SO4 등)의 숫자를 아래첨자로 표시
+  function symHTML(sym) { return sym.replace(/(\d+)/g, '<sub>$1</sub>'); }
+
   function buildCompoundGrid() {
     COMPOUNDS.forEach(function (c) {
       var b = document.createElement('button');
@@ -891,7 +896,7 @@
       b.setAttribute('aria-pressed', 'false');
       b.dataset.id = c.id;
       b.innerHTML = '<span class="name">' + c.name + '</span><span class="formula-hint">' +
-        c.cSym + '<sup>' + chargeSup(c.cCharge) + '</sup> + ' + c.aSym + '<sup>' + chargeSup(c.aCharge) + '</sup></span>';
+        symHTML(c.cSym) + '<sup>' + chargeSup(c.cCharge) + '</sup> + ' + symHTML(c.aSym) + '<sup>' + chargeSup(c.aCharge) + '</sup></span>';
       b.addEventListener('click', function () { selectCompound(c.id); });
       compoundGrid.appendChild(b);
     });
@@ -901,9 +906,9 @@
     bondCompound = COMPOUNDS.filter(function (c) { return c.id === id; })[0];
     cationCount = 0; anionCount = 0;
     compoundNameLabel.textContent = bondCompound.name;
-    cationSym.innerHTML = bondCompound.cSym + '<sup>' + chargeSup(bondCompound.cCharge) + '</sup>';
+    cationSym.innerHTML = symHTML(bondCompound.cSym) + '<sup>' + chargeSup(bondCompound.cCharge) + '</sup>';
     cationName.textContent = bondCompound.cName;
-    anionSym.innerHTML = bondCompound.aSym + '<sup>' + chargeSup(bondCompound.aCharge) + '</sup>';
+    anionSym.innerHTML = symHTML(bondCompound.aSym) + '<sup>' + chargeSup(bondCompound.aCharge) + '</sup>';
     anionName.textContent = bondCompound.aName;
     Array.prototype.forEach.call(compoundGrid.children, function (b) {
       b.setAttribute('aria-pressed', String(b.dataset.id === id));
@@ -911,12 +916,16 @@
     renderBond();
   }
 
+  function formulaPart(sym, count) {
+    if (count <= 1) return symHTML(sym);
+    var wrapped = sym.length > 2; // 다원자 이온은 괄호로 묶어요 (예: Ca(OH)2)
+    return (wrapped ? '(' + symHTML(sym) + ')' : symHTML(sym)) + '<sub>' + count + '</sub>';
+  }
+
   function formatFormula(cCount, aCount) {
     var g = gcd(cCount, aCount) || 1;
     var cc = cCount / g, ac = aCount / g;
-    var csub = cc > 1 ? '<sub>' + cc + '</sub>' : '';
-    var asub = ac > 1 ? '<sub>' + ac + '</sub>' : '';
-    return { html: bondCompound.cSym + csub + bondCompound.aSym + asub, cc: cc, ac: ac };
+    return { html: formulaPart(bondCompound.cSym, cc) + formulaPart(bondCompound.aSym, ac), cc: cc, ac: ac };
   }
 
   function renderBond() {
@@ -928,8 +937,8 @@
     btnMinusAnion.disabled = anionCount === 0;
 
     var chips = '';
-    for (var i = 0; i < cationCount; i++) chips += '<span class="ionchip cation">' + bondCompound.cSym + '</span>';
-    for (var j = 0; j < anionCount; j++) chips += '<span class="ionchip anion">' + bondCompound.aSym + '</span>';
+    for (var i = 0; i < cationCount; i++) chips += '<span class="ionchip cation">' + symHTML(bondCompound.cSym) + '</span>';
+    for (var j = 0; j < anionCount; j++) chips += '<span class="ionchip anion">' + symHTML(bondCompound.aSym) + '</span>';
     ionTray.innerHTML = chips;
 
     var sum = cationCount * bondCompound.cCharge + anionCount * bondCompound.aCharge;
@@ -941,8 +950,8 @@
     if (balanced) {
       var f = formatFormula(cationCount, anionCount);
       bondFormula.innerHTML = f.html;
-      bondRatio.innerHTML = bondCompound.cSym + '<sup>' + chargeSup(bondCompound.cCharge) + '</sup> : ' +
-        bondCompound.aSym + '<sup>' + chargeSup(bondCompound.aCharge) + '</sup> = ' + f.cc + ' : ' + f.ac;
+      bondRatio.innerHTML = symHTML(bondCompound.cSym) + '<sup>' + chargeSup(bondCompound.cCharge) + '</sup> : ' +
+        symHTML(bondCompound.aSym) + '<sup>' + chargeSup(bondCompound.aCharge) + '</sup> = ' + f.cc + ' : ' + f.ac;
       bondResult.hidden = false;
     } else {
       bondResult.hidden = true;

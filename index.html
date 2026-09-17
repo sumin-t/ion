@@ -840,14 +840,15 @@
 
   /* ---------- ionic bonding tab ---------- */
   var COMPOUNDS = [
-    { id: 'nacl',  name: '염화 나트륨',   cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
-    { id: 'mgcl2', name: '염화마그네슘',  cSym: 'Mg', cName: '마그네슘 이온', cCharge: 2, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
-    { id: 'li2o',  name: '산화리튬',     cSym: 'Li', cName: '리튬 이온',   cCharge: 1, aSym: 'O',  aName: '산화 이온', aCharge: -2 },
-    { id: 'kcl',   name: '염화칼륨',     cSym: 'K',  cName: '칼륨 이온',   cCharge: 1, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
-    { id: 'cacl2', name: '염화칼슘',     cSym: 'Ca', cName: '칼슘 이온',   cCharge: 2, aSym: 'Cl', aName: '염화 이온', aCharge: -1 },
-    { id: 'naf',   name: '플루오린화나트륨', cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'F', aName: '플루오린화 이온', aCharge: -1 },
-    { id: 'nahco3', name: '탄산수소나트륨', cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'HCO3', aName: '탄산수소 이온', aCharge: -1 },
-    { id: 'caso4', name: '황산칼슘',    cSym: 'Ca', cName: '칼슘 이온',   cCharge: 2, aSym: 'SO4', aName: '황산 이온', aCharge: -2 }
+    { id: 'nacl',   name: '염화 나트륨',   cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'Cl',  aName: '염화 이온',   aCharge: -1 },
+    { id: 'cao',    name: '산화 칼슘',    cSym: 'Ca', cName: '칼슘 이온',   cCharge: 2, aSym: 'O',   aName: '산화 이온',   aCharge: -2 },
+    { id: 'cacl2',  name: '염화 칼슘',    cSym: 'Ca', cName: '칼슘 이온',   cCharge: 2, aSym: 'Cl',  aName: '염화 이온',   aCharge: -1 },
+    { id: 'caso4',  name: '황산칼슘',     cSym: 'Ca', cName: '칼슘 이온',   cCharge: 2, aSym: 'SO4', aName: '황산 이온',   aCharge: -2 },
+    { id: 'nahco3', name: '탄산수소 나트륨', cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'HCO3', aName: '탄산수소 이온', aCharge: -1 },
+    { id: 'mgcl2',  name: '염화 마그네슘', cSym: 'Mg', cName: '마그네슘 이온', cCharge: 2, aSym: 'Cl',  aName: '염화 이온',   aCharge: -1 },
+    { id: 'kcl',    name: '염화 칼륨',    cSym: 'K',  cName: '칼륨 이온',   cCharge: 1, aSym: 'Cl',  aName: '염화 이온',   aCharge: -1 },
+    { id: 'li2o',   name: '산화 리튬',    cSym: 'Li', cName: '리튬 이온',   cCharge: 1, aSym: 'O',   aName: '산화 이온',   aCharge: -2 },
+    { id: 'naf',    name: '플루오린화 나트륨', cSym: 'Na', cName: '나트륨 이온', cCharge: 1, aSym: 'F', aName: '플루오린화 이온', aCharge: -1 }
   ];
 
   var compoundGrid = document.getElementById('compoundGrid');
